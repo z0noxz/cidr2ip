@@ -35,7 +35,7 @@ function cidr2ip {
 # check if input is a CIDR
 if [[ $1 =~ ^[0-9]{1,2}$ && $1 -le 32 && $1 -gt 0 ]]; then
     cidr2ip $1
-    exit
+    exit 0
 fi
 
 # if all fails print usage
@@ -49,3 +49,4 @@ $license
 EOF
 printf "%s\n\n" "$usage" >&2
 
+exit 1
