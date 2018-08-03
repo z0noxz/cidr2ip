@@ -1,0 +1,51 @@
+#!/bin/sh
+read -d '' license << EOF
+Converts CIDR to IPADDRESS
+Copyright (C) 2018 z0noxz, <chris@noxz.tech>
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program. If not, see <http://www.gnu.org/licenses/>.
+EOF
+
+function cidr2ip {
+    local binary=$(printf '1%.0s' $(eval "printf '%1.0s\.' {1..$(($1))}"))
+    local binary=${binary}$(printf '0%.0s' $(eval "printf '%1.0s\.' {0..$((32-$1))}"))
+    local oct1="${binary:0:8}"
+    local oct2="${binary:8:8}"
+    local oct3="${binary:16:8}"
+    local oct4="${binary:24:8}"
+
+    printf "%d.%d.%d.%d\n"\
+        "$((2#${oct1}))"\
+        "$((2#${oct2}))"\
+        "$((2#${oct3}))"\
+        "$((2#${oct4}))"
+}
+
+# check if input is a CIDR
+if [[ $1 =~ ^[0-9]{1,2}$ && $1 -le 32 && $1 -gt 0 ]]; then
+    cidr2ip $1
+    exit
+fi
+
+# if all fails print usage
+program_name="${0##*/}"
+read -d '' usage << EOF
+Usage: $program_name CIDR
+
+LICENSE NOTICE
+
+$license
+EOF
+printf "%s\n\n" "$usage" >&2
+
