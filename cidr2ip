@@ -18,12 +18,18 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
 EOF
 
 function cidr2ip {
-    local binary=$(printf '1%.0s' $(eval "printf '%1.0s\.' {1..$(($1))}"))
-    local binary=${binary}$(printf '0%.0s' $(eval "printf '%1.0s\.' {0..$((32-$1))}"))
-    local oct1="${binary:0:8}"
-    local oct2="${binary:8:8}"
-    local oct3="${binary:16:8}"
-    local oct4="${binary:24:8}"
+    local binary=""
+    local oct1=""
+    local oct2=""
+    local oct3=""
+    local oct4=""
+
+    binary=$(printf '1%.0s' $(eval "printf '%1.0s\.' {1..$(($1))}"))
+    binary=${binary}$(printf '0%.0s' $(eval "printf '%1.0s\.' {0..$((32-$1))}"))
+    oct1="${binary:0:8}"
+    oct2="${binary:8:8}"
+    oct3="${binary:16:8}"
+    oct4="${binary:24:8}"
 
     printf "%d.%d.%d.%d\n"\
         "$((2#${oct1}))"\
