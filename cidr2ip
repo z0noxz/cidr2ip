@@ -1,5 +1,5 @@
 #!/bin/sh
-read -d '' license << EOF
+license='
 Converts CIDR to IPADDRESS
 Copyright (C) 2018 z0noxz, <chris@noxz.tech>
 
@@ -15,45 +15,48 @@ GNU General Public License for more details.
 
 You should have received a copy of the GNU General Public License
 along with this program. If not, see <http://www.gnu.org/licenses/>.
-EOF
+'
 
-function cidr2ip {
+cidr2ip() {
 
-    local binary=""
-    local oct1=""
-    local oct2=""
-    local oct3=""
-    local oct4=""
+    cidr=$1
+    cidr_invert=$((32-cidr))
+    mask=$((4294967295 >> cidr_invert << cidr_invert))
+    base=256
+    result=""
 
-    binary=$(printf '1%.0s' $(eval "printf '%1.0s\.' {1..$(($1))}"))
-    binary=${binary}$(printf '0%.0s' $(eval "printf '%1.0s\.' {0..$((32-$1))}"))
-    oct1="${binary:0:8}"
-    oct2="${binary:8:8}"
-    oct3="${binary:16:8}"
-    oct4="${binary:24:8}"
+    while [ "$mask" -ne 0 ]; do
+        result=$(printf '%3s%s' $((mask % base)) "$result")
+        mask=$((mask / base))
+    done
 
-    printf "%d.%d.%d.%d\n"\
-        "$((2#${oct1}))"\
-        "$((2#${oct2}))"\
-        "$((2#${oct3}))"\
-        "$((2#${oct4}))"
+    oct1=${result%?????????}
+    oct2=${result%??????}
+    oct3=${result%???}
+    oct4=${result#?????????}
+
+    oct2=${oct2#???}
+    oct3=${oct3#??????}
+
+    printf '%d.%d.%d.%d\n'\
+        "$oct1"\
+        "$oct2"\
+        "$oct3"\
+        "$oct4"
 }
 
 # check if input is a CIDR
-if [[ $1 =~ ^[0-9]{1,2}$ && $1 -le 32 && $1 -gt 0 ]]; then
-    cidr2ip $1
+if [ "$1" -eq "$1" ] 2> /dev/null && [ "$1" -le 32 ] && [ "$1" -gt 0 ]; then
+    cidr2ip "$1"
     exit 0
 fi
 
 # if all fails print usage
 program_name="${0##*/}"
-read -d '' usage << EOF
-Usage: $program_name CIDR
+printf 'Usage: %s CIDR
 
 LICENSE NOTICE
-
-$license
-EOF
-printf "%s\n\n" "$usage" >&2
+%s
+' "$program_name" "$license" >&2
 
 exit 1
