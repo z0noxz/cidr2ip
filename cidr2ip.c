@@ -20,9 +20,12 @@
 #include <string.h>
 #include <unistd.h>
 
+const char *usage = "usage: cidr2ip <CIDR>";
+
 int
 main(int argc, char **argv) {
-    int ip, cidr, input_size;
+    int ip, cidr,
+        input_size;
     int buffer_size = 80;
     unsigned char mask[4];
     char buffer[buffer_size];
@@ -44,12 +47,12 @@ main(int argc, char **argv) {
 
     /* no valid input, so show usage */
     } else {
-        fprintf(stderr, "usage: cidr2ip CIDR\n");
+        fprintf(stderr, "%s\n", usage);
         return 1;
     }
 
     if (sscanf(input, "%d", &cidr) == 1 && cidr >= 1 && cidr <= 32) {
-        ip = 4294967295 >> (32-cidr) << (32-cidr);
+        ip = 0xffffffffu >> (32-cidr) << (32-cidr);
         mask[0] = (ip >>  0) & 0xff;
         mask[1] = (ip >>  8) & 0xff;
         mask[2] = (ip >> 16) & 0xff;
